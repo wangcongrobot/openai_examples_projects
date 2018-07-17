@@ -121,6 +121,10 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
             linear_speed = self.linear_turn_speed
             angular_speed = -1*self.angular_speed
             self.last_action = "TURN_RIGHT"
+        elif action == 3: #RIGHT
+            linear_speed = -self.linear_turn_speed
+            angular_speed = 0.0
+            self.last_action = "BACKWARDS"
 
         
         # We tell TurtleBot2 the linear and angular speed to set to execute
@@ -162,6 +166,8 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         if not done:
             if self.last_action == "FORWARDS":
                 reward = self.forwards_reward
+            elif self.last_action == "BACKWARDS":
+                reward = -1*self.forwards_reward
             else:
                 reward = self.turn_reward
         else:

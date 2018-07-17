@@ -55,9 +55,9 @@ class MyTurtleBot2WallEnv(turtlebot2_env.TurtleBot2Env):
         
         # Get Desired Point to Get
         self.desired_point = Point()
-        self.desired_point.x = rospy.get_param("/sumit_xl/desired_pose/x")
-        self.desired_point.y = rospy.get_param("/sumit_xl/desired_pose/y")
-        self.desired_point.z = rospy.get_param("/sumit_xl/desired_pose/z")
+        self.desired_point.x = rospy.get_param("/turtlebot2/desired_pose/x")
+        self.desired_point.y = rospy.get_param("/turtlebot2/desired_pose/y")
+        self.desired_point.z = rospy.get_param("/turtlebot2/desired_pose/z")
         
         # We create two arrays based on the binary values that will be assigned
         # In the discretization method.
