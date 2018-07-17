@@ -9,7 +9,7 @@ turtlebot2: #namespace
     epsilon: 0.9
     epsilon_discount: 0.999
     nepisodes: 500
-    nsteps: 1000
+    nsteps: 10000
     number_splits: 10 #set to change the number of state splits for the continuous problem and also the number of env_variable splits
 
     running_step: 0.06 # Time for each step
@@ -27,9 +27,14 @@ turtlebot2: #namespace
     init_linear_turn_speed: 0.0 # Initial angular speed in shich we start each episode
     
     new_ranges: 5 # How many laser readings we jump in each observation reading, the bigger the less laser resolution
-    min_range: 0.3 # Minimum meters below wich we consider we have crashed
+    min_range: 0.5 # Minimum meters below wich we consider we have crashed
     max_laser_value: 6 # Value considered Ok, no wall
     min_laser_value: 0 # Value considered there is an obstacle or crashed
+    
+    desired_pose:
+      x: 5.0
+      y: 0.0
+      z: 0.0
     
     forwards_reward: 5 # Points Given to go forwards
     turn_reward: 1 # Points Given to turn as action
