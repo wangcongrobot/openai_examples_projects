@@ -3,12 +3,13 @@ import numpy
 from gym import spaces
 from openai_ros import turtlebot2_env
 from gym.envs.registration import register
+from geometry_msgs.msg import Point
 
 timestep_limit_per_episode = 10000 # Can be any Value
 
 register(
         id='MyTurtleBot2Wall-v0',
-        entry_point='my_turtlebot2_wall:MyTurtleBot2MazeEnv',
+        entry_point='my_turtlebot2_wall:MyTurtleBot2WallEnv',
         timestep_limit=timestep_limit_per_episode,
     )
 
@@ -146,7 +147,7 @@ class MyTurtleBot2WallEnv(turtlebot2_env.TurtleBot2Env):
         # We get the laser scan data
         laser_scan = self.get_laser_scan()
         
-        discretized_observations = self.discretize_observation( laser_scan,
+        discretized_laser_scan = self.discretize_observation( laser_scan,
                                                                 self.new_ranges
                                                                 )
                                                                 
