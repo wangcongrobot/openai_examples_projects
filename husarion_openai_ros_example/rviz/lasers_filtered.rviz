@@ -60,18 +60,18 @@ Visualization Manager:
       Class: rviz/LaserScan
       Color: 255; 255; 255
       Color Transformer: Intensity
-      Decay Time: 1
+      Decay Time: 0
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 6
       Min Color: 0; 0; 0
-      Min Intensity: 1.29999995
+      Min Intensity: 0.899999976
       Name: LaserScan
       Position Transformer: XYZ
       Queue Size: 1
       Selectable: true
-      Size (Pixels): 25
+      Size (Pixels): 10
       Size (m): 0.100000001
       Style: Points
       Topic: /rosbot/laser/scan_filtered
@@ -134,7 +134,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.21513653
+      Distance: 8.31993294
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
