@@ -28,8 +28,8 @@ husarion: #namespace
       y_min: -5.0
 
     linear_forward_speed: 0.5 # Spwwed for ging fowards
-    linear_turn_speed: 0.05 # Lienare speed when turning
-    angular_speed: 0.3 # Angular speed when turning Left or Right
+    linear_turn_speed: 0.0 # Lienare speed when turning
+    angular_speed: 1.5 # Angular speed when turning Left or Right
     move_base_precision: 0.2 # We allow this difference between the asked linear speed and the real one. Note that angular is not because controller is too imprecise in sim.
     
     new_ranges: 40 # How many laser readings we jump in each observation reading, the bigger the less laser resolution
