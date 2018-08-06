@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
+import numpy
+import math
 import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, FollowJointTrajectoryResult, FollowJointTrajectoryFeedback
 from trajectory_msgs.msg import JointTrajectoryPoint
@@ -139,6 +141,24 @@ class IriWamExecTrajectory(object):
                                                 "iri_wam_joint_5",
                                                 "iri_wam_joint_6",
                                                 "iri_wam_joint_7"]
+        
+        # Some of them dont quite coincide with the URDF limits, just because those limits break the simulation.
+        self.max_values = [ 2.6,
+                            2.0,
+                            2.8,
+                            3.0,
+                            1.24,
+                            1.5,
+                            3.0]
+                                            
+        self.min_values = [ -2.6,
+                            -2.0,
+                            -2.8,
+                            -0.9,
+                            -1.24,
+                            -1.4,
+                            -3.0]
+                                                        
                                                 
         self.goal.trajectory.points = []
         joint_traj_point = JointTrajectoryPoint()
@@ -169,7 +189,7 @@ class IriWamExecTrajectory(object):
         rospy.loginfo("##### ###### ######")
         
         
-    def send_joints_positions(self, joints_positions_array):
+    def send_joints_positions(self, joints_positions_array, seconds_duration=0.05):
         
         
         my_goal = self.get_goal()
@@ -178,12 +198,15 @@ class IriWamExecTrajectory(object):
         joint_traj_point = JointTrajectoryPoint()
         
         
-        # TODO
-        joint_traj_point.positions = joints_positions_array
+        # We clamp the values to max and min to avoid asking configurations that IriWam cant reach.
+        
+        joint_traj_point.positions = numpy.clip(joints_positions_array,
+                                                self.min_values,
+                                                self.max_values).tolist()
         joint_traj_point.velocities = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         joint_traj_point.accelerations = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         joint_traj_point.effort = []
-        joint_traj_point.time_from_start = rospy.Duration.from_sec(1.0)
+        joint_traj_point.time_from_start = rospy.Duration.from_sec(seconds_duration)
         
         my_goal.trajectory.points = []
         my_goal.trajectory.points.append(joint_traj_point)
@@ -221,9 +244,22 @@ if __name__ == '__main__':
     rospy.init_node('iriwam_exec_traj_test_node', anonymous=True, log_level=rospy.INFO)
     traj_object = IriWamExecTrajectory()
     
-    rospy.logwarn("Sening NOn ZERO trajectory")
-    joints_positions_array = [1.57, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    traj_object.send_joints_positions(joints_positions_array)
+    rospy.logwarn("Sending Non ZERO trajectory")
     
+    joints_positions_array = [0.0]*7
+    
+    
+    while not rospy.is_shutdown():
+        
+        for i in range(len(joints_positions_array)):
+            t = rospy.get_time()
+            w = 0.5
+            A = 2.0
+            x = w * t
+            print str(x)
+            joints_positions_array[i] = A * math.sin(x)
+        
+        traj_object.send_joints_positions(joints_positions_array)
+        
     rospy.spin()
     
