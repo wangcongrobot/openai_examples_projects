@@ -1,5 +1,6 @@
 import rospy
 import numpy
+import time
 from gym import spaces
 from openai_ros.robot_envs import turtlebot2_env
 from gym.envs.registration import register
@@ -47,19 +48,20 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed')
         self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed')
         
-        self.new_ranges = rospy.get_param('/turtlebot2/new_ranges')
+        self.number_of_sectors = rospy.get_param('/turtlebot2/number_of_sectors')
         self.min_range = rospy.get_param('/turtlebot2/min_range')
-        self.max_laser_value = rospy.get_param('/turtlebot2/max_laser_value')
-        self.min_laser_value = rospy.get_param('/turtlebot2/min_laser_value')
+        self.middle_range = rospy.get_param('/turtlebot2/middle_range')
+        
+        self.danger_laser_value = rospy.get_param('/turtlebot2/danger_laser_value')
+        self.middle_laser_value = rospy.get_param('/turtlebot2/middle_laser_value')
+        self.safe_laser_value = rospy.get_param('/turtlebot2/safe_laser_value')
         
         
         
         # We create two arrays based on the binary values that will be assigned
         # In the discretization method.
-        laser_scan = self._check_laser_scan_ready()
-        num_laser_readings = len(laser_scan.ranges)/self.new_ranges
-        high = numpy.full((num_laser_readings), self.max_laser_value)
-        low = numpy.full((num_laser_readings), self.min_laser_value)
+        high = numpy.full((self.number_of_sectors), self.danger_laser_value)
+        low = numpy.full((self.number_of_sectors), self.safe_laser_value)
         
         # We only use two integers
         self.observation_space = spaces.Box(low, high)
@@ -80,10 +82,13 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
+        
         self.move_base( self.init_linear_forward_speed,
                         self.init_linear_turn_speed,
                         epsilon=0.05,
                         update_rate=10)
+        
+        
 
         return True
 
@@ -96,8 +101,11 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         """
         # For Info Purposes
         self.cumulated_reward = 0.0
-        # Set to false Done, because its calculated asyncronously
-        self._episode_done = False
+        
+        # This is necessary to give the laser sensors to refresh in the new reseted position.
+        rospy.logwarn("Waiting...")
+        time.sleep(0.5)
+        rospy.logwarn("END Waiting...")
 
 
     def _set_action(self, action):
@@ -144,7 +152,7 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         laser_scan = self.get_laser_scan()
         
         discretized_observations = self.discretize_observation( laser_scan,
-                                                                self.new_ranges
+                                                                self.number_of_sectors
                                                                 )
 
         rospy.logdebug("Observations==>"+str(discretized_observations))
@@ -154,12 +162,15 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
     def _is_done(self, observations):
         
-        if self._episode_done:
+        episode_done = not (self.check_laser_sector_readings_safe(observations))
+        
+        
+        if episode_done:
             rospy.logerr("TurtleBot2 is Too Close to wall==>")
         else:
             rospy.logerr("TurtleBot2 is Ok ==>")
 
-        return self._episode_done
+        return episode_done
 
     def _compute_reward(self, observations, done):
 
@@ -185,35 +196,51 @@ class MyTurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
     # Internal TaskEnv Methods
     
-    def discretize_observation(self,data,new_ranges):
+    def discretize_observation(self,laser_data,number_of_sectors):
         """
-        Discards all the laser readings that are not multiple in index of new_ranges
+        Discards all the laser readings that are not multiple in index of number_of_sectors
         value.
         """
-        self._episode_done = False
-        
-        discretized_ranges = []
-        mod = len(data.ranges)/new_ranges
-        
-        rospy.logdebug("data=" + str(data))
-        rospy.logwarn("new_ranges=" + str(new_ranges))
-        rospy.logwarn("mod=" + str(mod))
-        
-        for i, item in enumerate(data.ranges):
-            if (i%mod==0):
-                if item == float ('Inf') or numpy.isinf(item):
-                    discretized_ranges.append(self.max_laser_value)
-                elif numpy.isnan(item):
-                    discretized_ranges.append(self.min_laser_value)
-                else:
-                    discretized_ranges.append(int(item))
-                    
-                if (self.min_range > item > 0):
-                    rospy.logerr("done Validation >>> item=" + str(item)+"< "+str(self.min_range))
-                    self._episode_done = True
-                else:
-                    rospy.logwarn("NOT done Validation >>> item=" + str(item)+"< "+str(self.min_range))
-                    
 
-        return discretized_ranges
+        base = len(laser_data.ranges)/number_of_sectors
+        current_sector = -1
+        
+        sector_readings = [self.safe_laser_value]*number_of_sectors
+        
+        for i, item in enumerate(laser_data.ranges):
+            #rospy.logwarn("#### S ###")
+            #rospy.logwarn(str(i))
+            #rospy.logwarn(str(item))
+            rest_is_zero = (i%base==0)
+            
+            if rest_is_zero:
+                rospy.logwarn("CHANGE SECTOR="+str(rest_is_zero))
+                current_sector += 1
+            else:
+                rospy.loginfo("NO CHANGE SECTOR="+str(rest_is_zero))
+                
+            
+            if numpy.isnan(item):
+                rospy.logerr(">>>>>>>>>>>>NAN VALUE=>>>"+str(item))
+            
+            elif (self.min_range >= item ):
+                sector_readings[current_sector] = self.danger_laser_value
+            
+            elif (self.middle_range >= item > self.min_range):
+                sector_readings[current_sector] = self.middle_laser_value
 
+
+        return sector_readings
+        
+        
+    def check_laser_sector_readings_safe(self, laser_sector_readings):
+        """
+        Checks if all the sector readings have the self.safe_laser_value
+        of self.middle_laser_value
+        """
+        
+        readings_safe = all((c != self.danger_laser_value) for c in laser_sector_readings)
+        rospy.logwarn("laser_sector_readings=>>>"+str(laser_sector_readings))
+        rospy.logwarn("readings_safe=>>>"+str(readings_safe))
+        
+        return readings_safe
