@@ -8,22 +8,23 @@ iriwam: #namespace
     nepisodes: 500
     nsteps: 10000
 
-    n_actions: 14 # Increase and decrease 7 joints.
+    n_actions: 16 # Increase and decrease 8 joints.
 
-    work_space: # 3D cube in which Sawyers TCP ( right_electric_gripper_base frame) is allowed to move in
-      x_max: 1.1
-      x_min: 0.0
-      y_max: 1.0
-      y_min: -1.0
-      z_max: 1.3
-      z_min: 0.3
-
-
-    acceptable_distance_to_cube: 0.16 # Distance to the clock that we consider that it reached the block.
-    tcp_z_position_min: 0.83 # Z value minimum to consider that the tcp is above the table, to avoid cheating the block distance done.
+    init_joints: # Init pose so that camera can see the laser element .["iri_wam_joint_1","iri_wam_joint_2","iri_wam_joint_3","iri_wam_joint_4","iri_wam_joint_5","iri_wam_joint_6","iri_wam_joint_7"]
+      iri_wam_joint_1: 0.0
+      iri_wam_joint_2: 1.1
+      iri_wam_joint_3: 0.0
+      iri_wam_joint_4: 1.1
+      iri_wam_joint_5: 0.0
+      iri_wam_joint_6: 0.0
+      iri_wam_joint_7: 0.0
     
-    max_effort: 50.0 # Maximum Effort , above which the episode is done.
     
+    joint_increment_value: 0.1 # Increments of the joints each action does.
+    
+    max_distance_from_red_bowl: 145 # Maximum distace in pixels of the laser tip to the bowl. Bigger than this the episode finishes.
+    min_distance_from_red_bowl: 30 # Distance value that we consider it Over the red bowl
+
     number_decimals_precision_obs: 1
 
     done_reward: 1000.0 # reward

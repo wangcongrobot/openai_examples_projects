@@ -90,7 +90,7 @@ class LineFollower(object):
         cv2.circle(res_black,(int(cx_red), int(cy_red)), 10,(255,0,0),-1)
         cv2.circle(res_black,(int(cx_black), int(cy_black)), 10,(0,255,0),-1)
 
-        #cv2.imshow("MASK BLACK", mask_black)
+        cv2.imshow("MASK BLACK", mask_black)
         cv2.imshow("RES BLACK", res_black)
         
         cv2.waitKey(1)

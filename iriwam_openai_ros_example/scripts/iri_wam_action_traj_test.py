@@ -248,7 +248,7 @@ if __name__ == '__main__':
     
     joints_positions_array = [0.0]*7
     
-    
+    """
     while not rospy.is_shutdown():
         
         for i in range(len(joints_positions_array)):
@@ -260,6 +260,12 @@ if __name__ == '__main__':
             joints_positions_array[i] = A * math.sin(x)
         
         traj_object.send_joints_positions(joints_positions_array)
+    """
+    
+    joints_positions_array = [0.0, 1.1, 0.0, 1.1, 0.0, 0.0, 0.0]
+    traj_object.send_joints_positions(joints_positions_array)
         
     rospy.spin()
+    
+    
     
