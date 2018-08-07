@@ -6,6 +6,8 @@ import math
 import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, FollowJointTrajectoryResult, FollowJointTrajectoryFeedback
 from trajectory_msgs.msg import JointTrajectoryPoint
+from sensor_msgs.msg import LaserScan
+
 
 class IriWamExecTrajectory(object):
     
@@ -110,7 +112,13 @@ class IriWamExecTrajectory(object):
         joints_positions_array = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self.send_joints_positions(joints_positions_array)
         
+        rospy.Subscriber("/laser_scan", LaserScan, self._laser_scan_callback)
         
+     
+    def _laser_scan_callback(self, data):
+        self.laser_scan = data
+        center_value = self.laser_scan.ranges[int(len(self.laser_scan.ranges)/2)]
+        rospy.logwarn("center_value===>"+str(center_value))
         
     
     def init_goal_message(self):
@@ -262,7 +270,7 @@ if __name__ == '__main__':
         traj_object.send_joints_positions(joints_positions_array)
     """
     
-    joints_positions_array = [0.0, 1.1, 0.0, 1.1, 0.0, 0.0, 0.0]
+    joints_positions_array = [0.0, 1.4, 0.0, 1.4, 0.0, 0.0, 0.0]
     traj_object.send_joints_positions(joints_positions_array)
         
     rospy.spin()
