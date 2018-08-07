@@ -5,7 +5,6 @@ import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
-from move_robot import MoveKobuki
 
 class LineFollower(object):
 
@@ -13,7 +12,6 @@ class LineFollower(object):
     
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
-        self.movekobuki_object = MoveKobuki()
 
     def camera_callback(self,data):
         
@@ -28,59 +26,89 @@ class LineFollower(object):
         # Select the limits so that it gets the line not too close and not too far, and the minimum portion possible
         # To make process faster.
         height, width, channels = cv_image.shape
-        descentre = 160
-        rows_to_watch = 20
+        descentre = -height/2
+        rows_to_watch = height
         crop_img = cv_image[(height)/2+descentre:(height)/2+(descentre+rows_to_watch)][1:width]
         
         # Convert from RGB to HSV
         hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
         
-
-        #Define the Yellow Colour in HSV
-        #BGR
-        red_low = np.uint8([[[4,0,34]]])
-        red_high = np.uint8([[[34,0,136]]])
-        hsv_red_low = cv2.cvtColor(red_low,cv2.COLOR_BGR2HSV)
-        #array([[[176, 255,  34]]], dtype=uint8)
-        hsv_red_high = cv2.cvtColor(red_high,cv2.COLOR_BGR2HSV)
-        #array([[[172, 255, 136]]], dtype=uint8)
+        
+        # We track two colours, the RedBowl and the Black tip of IriWam Arm ( laser ) which is black.
+        
+        # RED BOWL
+        
+        lower_red = np.array([0,204,100])
+        upper_red = np.array([0,255,255])
 
         # Threshold the HSV image to get only yellow colors
-        mask = cv2.inRange(hsv, hsv_red_low, hsv_red_high)
+        mask = cv2.inRange(hsv, lower_red, upper_red)
         
         # Calculate centroid of the blob of binary image using ImageMoments
         m = cv2.moments(mask, False)
         try:
-            cx, cy = m['m10']/m['m00'], m['m01']/m['m00']
+            cx_red, cy_red = m['m10']/m['m00'], m['m01']/m['m00']
         except ZeroDivisionError:
-            cy, cx = height/2, width/2
+            cy_red, cx_red = height/2, width/2
         
         
         # Bitwise-AND mask and original image
-        res = cv2.bitwise_and(crop_img,crop_img, mask= mask)
+        #res = cv2.bitwise_and(crop_img,crop_img, mask= mask)
+        
+        # Draw the centroid in the resultut image
+        #cv2.circle(res,(int(cx_red), int(cy_red)), 10,(0,0,255),-1)
+
+        
+        #cv2.imshow("MASK", mask)
+        #cv2.imshow("RES", res)
+        
+        #cv2.waitKey(1)
+        
+        
+        
+        # Black Laser
+        lower_black = np.array([0,0,0])
+        upper_black = np.array([0,0,10])
+
+        # Threshold the HSV image to get only yellow colors
+        mask_black = cv2.inRange(hsv, lower_black, upper_black)
+        
+        # Calculate centroid of the blob of binary image using ImageMoments
+        m = cv2.moments(mask_black, False)
+        try:
+            cx_black, cy_black = m['m10']/m['m00'], m['m01']/m['m00']
+        except ZeroDivisionError:
+            cy_black, cx_black = height/2, width/2
+        
+        
+        # Bitwise-AND mask and original image
+        #res_black = cv2.bitwise_and(crop_img,crop_img, mask= mask_black)
+        res_black = cv2.bitwise_and(crop_img,crop_img)
         
         # Draw the centroid in the resultut image
         # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) 
-        cv2.circle(res,(int(cx), int(cy)), 10,(0,0,255),-1)
+        cv2.circle(res_black,(int(cx_red), int(cy_red)), 10,(255,0,0),-1)
+        cv2.circle(res_black,(int(cx_black), int(cy_black)), 10,(0,255,0),-1)
 
-        cv2.imshow("Original", cv_image)
-        cv2.imshow("HSV", hsv)
-        cv2.imshow("MASK", mask)
-        cv2.imshow("RES", res)
+        #cv2.imshow("MASK BLACK", mask_black)
+        cv2.imshow("RES BLACK", res_black)
         
         cv2.waitKey(1)
         
         
-        error_x = cx - width / 2;
-        twist_object = Twist();
-        twist_object.linear.x = 0.2;
-        twist_object.angular.z = -error_x / 100;
-        rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
-        # Make it start turning
-        self.movekobuki_object.move_robot(twist_object)
+        error_x = cx_red - cx_black
+        error_y = cy_red - cy_black
+        error_array = np.array([error_x,error_y])
+        #rospy.logwarn("["+str(error_x)+","+str(error_y)+"]") 
+        magnitude = np.linalg.norm(error_array)
+        rospy.logwarn("Magnitude==>"+str(magnitude))
+        
+        
+        #cv2.imshow("Original", cv_image)
+        #cv2.imshow("HSV", hsv)
+        
         
     def clean_up(self):
-        self.movekobuki_object.clean_class()
         cv2.destroyAllWindows()
         
         
