@@ -119,7 +119,7 @@ class DQNRobotSolver():
 
 if __name__ == '__main__':
     rospy.init_node('cartpole_n1try_algorithm',
-                    anonymous=True, log_level=rospy.FATAL)
+                    anonymous=True, log_level=rospy.DEBUG)
 
     # Init OpenAI_ROS ENV
     task_and_robot_environment_name = rospy.get_param(
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     monitor = rospy.get_param('/cartpole_v0/monitor')
     quiet = rospy.get_param('/cartpole_v0/quiet')
 
-    agent = DQNRobotSolver(openai_ros_env_object
+    agent = DQNRobotSolver(openai_ros_env_object,
                            task_and_robot_environment_name,
                            n_observations,
                            n_actions,
