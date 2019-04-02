@@ -196,6 +196,8 @@ if __name__ == '__main__':
     # Init OpenAI_ROS ENV
     task_and_robot_environment_name = rospy.get_param(
         '/fetch/task_and_robot_environment_name')
+    rospy.logwarn("task_and_robot_environment_name ==>" +
+                  str(task_and_robot_environment_name))
     openai_ros_env_object = StartOpenAI_ROS_Environment(
         task_and_robot_environment_name)
     rospy.loginfo("Starting Learning")
