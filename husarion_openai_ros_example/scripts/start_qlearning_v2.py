@@ -14,7 +14,7 @@ from openai_ros.openai_ros_common import StartOpenAI_ROS_Environment
 if __name__ == '__main__':
 
     rospy.init_node('husarion_maze_qlearn',
-                    anonymous=True, log_level=rospy.WARN)
+                    anonymous=True, log_level=rospy.DEBUG)
 
     # Create the Gym environment
     # Init OpenAI_ROS ENV
