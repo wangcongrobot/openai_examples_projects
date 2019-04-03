@@ -13,21 +13,20 @@ from openai_ros.openai_ros_common import StartOpenAI_ROS_Environment
 
 if __name__ == '__main__':
 
-    rospy.init_node('hopper_stay_up_qlearn',
-                    anonymous=True, log_level=rospy.DEBUG)
+    rospy.init_node('husarion_maze_qlearn',
+                    anonymous=True, log_level=rospy.WARN)
 
+    # Create the Gym environment
     # Init OpenAI_ROS ENV
     task_and_robot_environment_name = rospy.get_param(
-        '/monoped/task_and_robot_environment_name')
+        '/husarion/task_and_robot_environment_name')
     env = StartOpenAI_ROS_Environment(
         task_and_robot_environment_name)
-    # Create the Gym environment
     rospy.loginfo("Gym environment done")
-    rospy.loginfo("Starting Learning")
 
     # Set the logging system
     rospack = rospkg.RosPack()
-    pkg_path = rospack.get_path('my_hopper_openai_example')
+    pkg_path = rospack.get_path('husarion_openai_ros_example')
     outdir = pkg_path + '/training_results'
     env = wrappers.Monitor(env, outdir, force=True)
     rospy.loginfo("Monitor Wrapper started")
@@ -37,12 +36,14 @@ if __name__ == '__main__':
     # Loads parameters from the ROS param server
     # Parameters are stored in a yaml file inside the config directory
     # They are loaded at runtime by the launch file
-    Alpha = rospy.get_param("/monoped/alpha")
-    Epsilon = rospy.get_param("/monoped/epsilon")
-    Gamma = rospy.get_param("/monoped/gamma")
-    epsilon_discount = rospy.get_param("/monoped/epsilon_discount")
-    nepisodes = rospy.get_param("/monoped/nepisodes")
-    nsteps = rospy.get_param("/monoped/nsteps")
+    Alpha = rospy.get_param("/husarion/alpha")
+    Epsilon = rospy.get_param("/husarion/epsilon")
+    Gamma = rospy.get_param("/husarion/gamma")
+    epsilon_discount = rospy.get_param("/husarion/epsilon_discount")
+    nepisodes = rospy.get_param("/husarion/nepisodes")
+    nsteps = rospy.get_param("/husarion/nsteps")
+
+    running_step = rospy.get_param("/husarion/running_step")
 
     # Initialises the algorithm that we are going to use for learning
     qlearn = qlearn.QLearn(actions=range(env.action_space.n),
