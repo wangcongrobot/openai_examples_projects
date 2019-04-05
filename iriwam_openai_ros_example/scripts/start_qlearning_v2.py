@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import gym
 import numpy
 import time
