@@ -1,6 +1,4 @@
 <launch>
-    <!-- We setup the learning env -->
-    <include file="$(find my_sawyer_openai_example)/launch/setup_learning_env.launch"/>
 
     <!-- This version uses the openai_ros environments -->
     <rosparam command="load" file="$(find my_sawyer_openai_example)/config/sawyer_openai_qlearn_params_v2.yaml" />
