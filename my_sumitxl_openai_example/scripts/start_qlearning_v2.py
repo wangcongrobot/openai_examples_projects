@@ -14,7 +14,7 @@ from openai_ros.openai_ros_common import StartOpenAI_ROS_Environment
 
 if __name__ == '__main__':
 
-    rospy.init_node('sumitxl_room_qlearn', anonymous=True, log_level=rospy.WARN)
+    rospy.init_node('sumitxl_room_qlearn', anonymous=True, log_level=rospy.DEBUG)
 
     # Init OpenAI_ROS ENV
     task_and_robot_environment_name = rospy.get_param(
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     env = StartOpenAI_ROS_Environment(
         task_and_robot_environment_name)
     # Create the Gym environment
-    rospy.loginfo("Gym environment done")
-    rospy.loginfo("Starting Learning")
+    rospy.loginfo(">>>>>>>>>>>>Gym environment done")
+    rospy.loginfo(">>>>>>>>>>>>>>Starting Learning")
 
     # Set the logging system
     rospack = rospkg.RosPack()
@@ -54,6 +54,7 @@ if __name__ == '__main__':
     start_time = time.time()
     highest_reward = 0
 
+    rospy.logdebug(">>>>>>>>>>>>>>>>START TRAINING LOOP...")
     # Starts the main training loop: the one about the episodes to do
     for x in range(nepisodes):
         rospy.logdebug("############### START EPISODE=>" + str(x))
