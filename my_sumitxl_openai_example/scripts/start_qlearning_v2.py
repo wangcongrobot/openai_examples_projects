@@ -14,13 +14,16 @@ from openai_ros.openai_ros_common import StartOpenAI_ROS_Environment
 
 if __name__ == '__main__':
 
-    rospy.init_node('sumitxl_room_qlearn', anonymous=True, log_level=rospy.DEBUG)
+    rospy.init_node('sumitxl_room_qlearn',
+                    anonymous=True, log_level=rospy.DEBUG)
 
     # Init OpenAI_ROS ENV
+    rospy.logwarn(">>>>>>>>>>>>START QLEARNING SUMMIT")
     task_and_robot_environment_name = rospy.get_param(
         '/sumit_xl/task_and_robot_environment_name')
     env = StartOpenAI_ROS_Environment(
         task_and_robot_environment_name)
+    print(">>>>>>>>>>>>START QLEARNING SUMMIT LOADED ENV")
     # Create the Gym environment
     rospy.loginfo(">>>>>>>>>>>>Gym environment done")
     rospy.loginfo(">>>>>>>>>>>>>>Starting Learning")
@@ -91,8 +94,10 @@ if __name__ == '__main__':
             rospy.logwarn("# state we were=>" + str(state))
             rospy.logwarn("# action that we took=>" + str(action))
             rospy.logwarn("# reward that action gave=>" + str(reward))
-            rospy.logwarn("# episode cumulated_reward=>" + str(cumulated_reward))
-            rospy.logwarn("# State in which we will start next step=>" + str(nextState))
+            rospy.logwarn("# episode cumulated_reward=>" +
+                          str(cumulated_reward))
+            rospy.logwarn(
+                "# State in which we will start next step=>" + str(nextState))
             qlearn.learn(state, action, reward, nextState)
 
             if not (done):
@@ -119,6 +124,7 @@ if __name__ == '__main__':
 
     # print("Parameters: a="+str)
     rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
-    rospy.loginfo("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
+    rospy.loginfo("Best 100 score: {:0.2f}".format(
+        reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
     env.close()
