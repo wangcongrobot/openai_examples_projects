@@ -1,6 +1,4 @@
 <launch>
-    <!-- Spawn Buoys -->
-    <include file="$(find wamv_openai_ros_example)/launch/spawn_task_buoys.launch"/>
     <!-- This version uses the openai_ros environments -->
     <rosparam command="load" file="$(find wamv_openai_ros_example)/config/vmrc_openai_qlearn_params_v2.yaml" />
     <!-- Launch the training system -->
