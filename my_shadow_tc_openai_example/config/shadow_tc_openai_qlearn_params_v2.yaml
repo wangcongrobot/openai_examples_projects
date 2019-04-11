@@ -1,5 +1,6 @@
 shadow_tc: #namespace
     task_and_robot_environment_name: 'ShadowTcGetBall-v0'
+    ros_ws_abspath: "/home/user/simulation_ws"
     #qlearn parameters
     alpha: 0.1
     gamma: 0.7

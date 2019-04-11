@@ -2,6 +2,7 @@ moving_cube: #namespace
 
     # OpenAI_ROS Task_Robot_ENV Name
     task_and_robot_environment_name: 'MovingCubeOneDiskWalk-v0'
+    ros_ws_abspath: "/home/user/simulation_ws"
 
     # Learning Params
     n_observations: 6

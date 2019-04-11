@@ -2,6 +2,7 @@ fetch: #namespace
 
     #qlearn parameters
     task_and_robot_environment_name: 'FetchTest-v0'
+    ros_ws_abspath: "/home/user/simulation_ws"
     n_actions: 6 # X+/-,Y+/-,Z+/-
     n_observations: 4 # XYZ of the TCP and the distance from GOAL
     episodes_training: 40
