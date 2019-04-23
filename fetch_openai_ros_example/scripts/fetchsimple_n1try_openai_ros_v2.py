@@ -111,7 +111,7 @@ class DQNRobotSolver():
             state = self.preprocess_state(init_state)
             done = False
             i = 0
-            while not done or i < max_iterations:
+            while not done and i < max_iterations:
                 # openai_ros doesnt support render for the moment
                 # self._env.render()
                 action = self.choose_action(
