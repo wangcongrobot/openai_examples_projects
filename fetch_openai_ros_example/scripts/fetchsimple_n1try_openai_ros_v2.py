@@ -104,6 +104,7 @@ class DQNRobotSolver():
 
         scores = deque(maxlen=100)
 
+        rospy.logfatal("START RUN >>>>>>>>>>>>>>>>>>>>>>>><")
         for e in range(num_episodes):
 
             init_state = self._env.reset()
@@ -114,6 +115,7 @@ class DQNRobotSolver():
             while not done and i < max_iterations:
                 # openai_ros doesnt support render for the moment
                 # self._env.render()
+                rospy.logfatal(">>>>>>>")
                 action = self.choose_action(
                     state, self.get_epsilon(e), do_train, i)
                 next_state, reward, done, _ = self._env.step(action)
@@ -242,7 +244,7 @@ if __name__ == '__main__':
                            batch_size,
                            monitor,
                            quiet)
-    agent.run(num_episodes=n_episodes_training, do_train=True)
+    agent.run(num_episodes=n_episodes_training, do_train=True, max_iterations= n_max_iterations)
 
     rospack = rospkg.RosPack()
     pkg_path = rospack.get_path(rospackage_name)
@@ -254,4 +256,4 @@ if __name__ == '__main__':
     agent.save(model_name, outdir)
     agent.load(model_name, outdir)
 
-    agent.run(num_episodes=n_episodes_running, do_train=False, max_iterations= n_max_iterations)
+    agent.run(num_episodes=n_episodes_running, do_train=False)
