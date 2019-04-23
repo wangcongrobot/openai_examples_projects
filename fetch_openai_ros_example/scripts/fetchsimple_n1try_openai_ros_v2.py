@@ -126,6 +126,8 @@ class DQNRobotSolver():
                 state = next_state
                 i += 1
 
+                rospy.logfatal("I=" + str(i)+",MAX_I=" + str(max_iterations))
+
             scores.append(i)
             mean_score = np.mean(scores)
             if mean_score >= self.n_win_ticks and e >= min_episodes:
