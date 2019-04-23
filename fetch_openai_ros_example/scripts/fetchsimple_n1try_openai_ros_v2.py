@@ -98,7 +98,7 @@ class DQNRobotSolver():
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-    def run(self, num_episodes, do_train=False):
+    def run(self, num_episodes, do_train=False, max_iterations=100):
 
         rate = rospy.Rate(30)
 
@@ -111,7 +111,7 @@ class DQNRobotSolver():
             state = self.preprocess_state(init_state)
             done = False
             i = 0
-            while not done:
+            while not done or i < max_iterations:
                 # openai_ros doesnt support render for the moment
                 # self._env.render()
                 action = self.choose_action(
@@ -210,6 +210,7 @@ if __name__ == '__main__':
 
     n_episodes_training = rospy.get_param('/fetch/episodes_training')
     n_episodes_running = rospy.get_param('/fetch/episodes_running')
+    n_max_iterations = rospy.get_param('/fetch/max_iterations')
     n_win_ticks = rospy.get_param('/fetch/n_win_ticks')
     min_episodes = rospy.get_param('/fetch/min_episodes')
     max_env_steps = None
@@ -251,4 +252,4 @@ if __name__ == '__main__':
     agent.save(model_name, outdir)
     agent.load(model_name, outdir)
 
-    agent.run(num_episodes=n_episodes_running, do_train=False)
+    agent.run(num_episodes=n_episodes_running, do_train=False, max_iterations= n_max_iterations)
